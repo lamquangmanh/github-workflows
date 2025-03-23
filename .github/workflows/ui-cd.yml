@@ -3,10 +3,10 @@ name: Run CD Process
 on:
   workflow_call:
     inputs:
-    environment:
-      description: 'Deployment environment (dev, test, stag, prod)'
-      required: true
-      type: string
+      environment:
+        description: 'Deployment environment (dev, test, stag, prod)'
+        required: true
+        type: string
       # app_name:
       #   description: 'ArgoCD Application Name'
       #   required: true
