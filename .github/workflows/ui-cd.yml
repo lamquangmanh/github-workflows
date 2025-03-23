@@ -3,14 +3,14 @@ name: Reusable CI/CD for ArgoCD & Kubernetes
 on:
   workflow_call:
     inputs:
+    environment:
+      description: 'Deployment environment (dev, test, stag, prod)'
+      required: true
+      type: string
       # app_name:
       #   description: 'ArgoCD Application Name'
       #   required: true
       #   type: string
-      environment:
-        description: 'Deployment environment (dev, staging, prod)'
-        required: true
-        type: string
     #   image_tag:
     #     description: 'Docker image tag to deploy'
     #     required: false
