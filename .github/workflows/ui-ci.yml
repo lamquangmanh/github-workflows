@@ -40,8 +40,7 @@ jobs:
       - name: Checkout Repository
       - uses: actions/checkout@v4
         with:
-          # ensures only the latest commit is pulled (faster performance).
-          fetch-depth: 1
+          fetch-depth: 1 # ensures only the latest commit is pulled (faster performance).
 
       - name: Setup nodeJs
       - uses: actions/setup-node@v4
@@ -52,13 +51,15 @@ jobs:
         run: npm install -g yarn
 
       # Retrieves the directory where Yarn stores cached dependencies.
+      # Saves this path in a GitHub Actions output variable.
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
-        # Saves this path in a GitHub Actions output variable.
         run: |
           echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
       # Uses GitHub's cache action to store and restore Yarn dependencies.
+      # Cache key is based on: The OS and The yarn.lock file (to detect dependency changes).
+      # The cache prevents unnecessary reinstallation of dependencies in future runs.
       - name: Cache Yarn Dependencies
       - uses: actions/cache@v4
         id: yarn-cache
@@ -66,8 +67,6 @@ jobs:
           cache-name: cache-node-modules
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          # Cache key is based on: The OS and The yarn.lock file (to detect dependency changes).
-          # The cache prevents unnecessary reinstallation of dependencies in future runs.
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
