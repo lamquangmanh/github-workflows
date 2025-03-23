@@ -1,4 +1,4 @@
-name: Reusable CI/CD for ArgoCD & Kubernetes
+name: Run CD Process
 
 on:
   workflow_call:
