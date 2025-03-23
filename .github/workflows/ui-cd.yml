@@ -1,4 +1,4 @@
-name: Run CD Process
+name: CD Workflow
 
 on:
   workflow_call:

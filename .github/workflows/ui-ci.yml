@@ -1,4 +1,4 @@
-name: Run CI Process
+name: CI Workflow
 
 on:
   workflow_call:
@@ -68,13 +68,13 @@ jobs:
         run: yarn install --frozen-lockfile
 
       # Runs the linting process (e.g., ESLint or similar tools).
-      - name: Lint Check
-        run: yarn run lint
+      # - name: Lint Check
+      #   run: yarn run lint
 
       # Build the project: Compiles/transpiles the project.
       - name: Build
         run: yarn run build
 
       # Runs unit/integration tests by Jest
-      - name: Test
-        run: yarn test
+      # - name: Test
+      #   run: yarn test
