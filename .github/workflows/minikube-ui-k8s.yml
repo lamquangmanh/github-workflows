@@ -30,7 +30,7 @@ jobs:
       - name: Checkout Config Repo
         uses: actions/checkout@v4
         with:
-          repository: lamquangmanh/github-config
+          repository: lamquangmanh/gitops-config
           ref: main
           token: ${{ secrets.READ_ONLY_PAT }}
 
