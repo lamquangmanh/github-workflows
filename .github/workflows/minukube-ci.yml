@@ -23,13 +23,13 @@ jobs:
 
     steps:
       - name: Checkout Repository
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4
         with:
           # ensures only the latest commit is pulled (faster performance).
           fetch-depth: 1
 
       - name: Setup nodeJs
-      - uses: actions/setup-node@v4
+        uses: actions/setup-node@v4
         with:
           node-version: 22
 
@@ -45,7 +45,7 @@ jobs:
 
       # Uses GitHub's cache action to store and restore Yarn dependencies.
       - name: Cache Yarn Dependencies
-      - uses: actions/cache@v4
+        uses: actions/cache@v4
         id: yarn-cache
         env:
           cache-name: cache-node-modules

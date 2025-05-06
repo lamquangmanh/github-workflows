@@ -42,15 +42,15 @@ jobs:
 
     steps:
       - name: Checkout Repository
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4
         with:
           # ensures only the latest commit is pulled (faster performance).
           fetch-depth: 1
 
       - name: Setup nodeJs
-      - uses: actions/setup-node@v4
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install yarn
         run: npm install -g yarn
@@ -64,7 +64,7 @@ jobs:
 
       # Uses GitHub's cache action to store and restore Yarn dependencies.
       - name: Cache Yarn Dependencies
-      - uses: actions/cache@v4
+        uses: actions/cache@v4
         id: yarn-cache
         env:
           cache-name: cache-node-modules
@@ -214,19 +214,3 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           name: ESlint Report
           conclusion: ${{ steps.execute-lint.outcome }}
-
-  # ci-process:
-  #   name: Build & Push Docker Image
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@v4
-
-  #     - name: Set Up Docker
-  #       run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-  #     - name: Build Docker Image
-  #       run: |
-  #         docker build -t my-org/${{ inputs.app_name }}:${{ inputs.image_tag || 'latest' }} .
-  #         docker push my-org/${{ inputs.app_name }}:${{ inputs.image_tag || 'latest' }}
