@@ -33,6 +33,12 @@ jobs:
         with:
           node-version: 22
 
+      # Creates a .npmrc file for GitHub Packages.
+      - name: Create .npmrc for GitHub Packages
+        run: |
+          echo "@lamquangmanh:registry=https://npm.pkg.github.com/" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.READ_ONLY_PAT }}" >> .npmrc
+
       - name: Install yarn
         run: npm install -g yarn
 
