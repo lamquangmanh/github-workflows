@@ -39,6 +39,12 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
+      # Creates a .npmrc file for GitHub Packages.
+      - name: Create .npmrc for GitHub Packages
+        run: |
+          echo "@lamquangmanh:registry=https://npm.pkg.github.com/" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.READ_ONLY_PAT }}" >> .npmrc
+
       # Executes a custom Docker build script (build.sh).
       # This likely builds a Docker image with the application.
       - name: Build Docker image
