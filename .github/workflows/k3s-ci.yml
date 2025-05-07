@@ -46,6 +46,11 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GIT_PAT }}
 
+      - name: Debug .npmrc content (redacted)
+        run: |
+          echo "------ .npmrc content ------"
+          sed 's/_authToken=.*/_authToken=***REDACTED***/' .npmrc
+
       - name: Install yarn
         run: npm install -g yarn
         env:
