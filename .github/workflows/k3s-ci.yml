@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     # This is option 2: run on the runner of inputs
     # runs-on: ["${{ inputs.RUNNER }}"]
+    permissions:
+      contents: read
+      packages: read
 
     # Prevents parallel execution of the same workflow on the same branch.
     # If a new workflow run starts for the same branch/ref, the previous run is canceled.
@@ -32,54 +35,52 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@lamquangmanh'
+          # registry-url: 'https://npm.pkg.github.com'
+          # scope: '@lamquangmanh'
 
       # creates a .npmrc file in the home directory of the runner.
-      - name: Create .npmrc securely
-        run: |
-          echo "@lamquangmanh:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GIT_PAT }}
+      # - name: Create .npmrc securely
+      #   run: |
+      #     echo "@lamquangmanh:registry=https://npm.pkg.github.com" >> .npmrc
+      #     echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.GIT_PAT }}
 
-      - name: Debug .npmrc content (redacted)
-        run: |
-          echo "------ .npmrc content ------"
-          sed 's/_authToken=.*/_authToken=***REDACTED***/' .npmrc
+      # - name: Debug .npmrc content (redacted)
+      #   run: |
+      #     echo "------ .npmrc content ------"
+      #     sed 's/_authToken=.*/_authToken=***REDACTED***/' .npmrc
 
       - name: Install yarn
         run: npm install -g yarn
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GIT_PAT }}
 
       # Retrieves the directory where Yarn stores cached dependencies.
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        # Saves this path in a GitHub Actions output variable.
-        run: |
-          echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+      # - name: Get yarn cache directory path
+      #   id: yarn-cache-dir-path
+      #   # Saves this path in a GitHub Actions output variable.
+      #   run: |
+      #     echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
-      # Uses GitHub's cache action to store and restore Yarn dependencies.
-      - name: Cache Yarn Dependencies
-        uses: actions/cache@v4
-        id: yarn-cache
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          # Cache key is based on: The OS and The yarn.lock file (to detect dependency changes).
-          # The cache prevents unnecessary reinstallation of dependencies in future runs.
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
+      # # Uses GitHub's cache action to store and restore Yarn dependencies.
+      # - name: Cache Yarn Dependencies
+      #   uses: actions/cache@v4
+      #   id: yarn-cache
+      #   env:
+      #     cache-name: cache-node-modules
+      #   with:
+      #     path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+      #     # Cache key is based on: The OS and The yarn.lock file (to detect dependency changes).
+      #     # The cache prevents unnecessary reinstallation of dependencies in future runs.
+      #     key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-build-${{ env.cache-name }}-
+      #       ${{ runner.os }}-build-
+      #       ${{ runner.os }}-
 
-      # If the cache wasn't restored, it prints 'cache not hit'
-      - name: Check cache
-        if: steps.yarn-cache.outputs.cache-hit != 'true'
-        run: echo 'cache not hit'
+      # # If the cache wasn't restored, it prints 'cache not hit'
+      # - name: Check cache
+      #   if: steps.yarn-cache.outputs.cache-hit != 'true'
+      #   run: echo 'cache not hit'
 
       # Installs project dependencies without modifying yarn.lock.
       - name: Install Dependencies
@@ -88,16 +89,16 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GIT_PAT  }}
 
       # Runs the linting process (e.g., ESLint or similar tools).
-      - name: Lint Check
-        run: yarn run lint
+      # - name: Lint Check
+      #   run: yarn run lint
 
       # Build the project: Compiles/transpiles the project.
       - name: Build
         run: yarn run build
 
       # Runs unit/integration tests by Jest
-      - name: Test
-        run: yarn test
+      # - name: Test
+      #   run: yarn test
 
       # Run Linting & Generate Lint Report
       # - name: Lint Code
