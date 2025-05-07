@@ -21,6 +21,9 @@ jobs:
       group: ${{ github.workflow }}-ci-process-${{ github.ref }}
       cancel-in-progress: true
 
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -32,6 +35,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          registry-url: 'https://npm.pkg.github.com'
 
       # Creates a .npmrc file for GitHub Packages.
       - name: Create .npmrc for GitHub Packages
