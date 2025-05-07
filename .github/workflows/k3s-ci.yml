@@ -14,9 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     # This is option 2: run on the runner of inputs
     # runs-on: ["${{ inputs.RUNNER }}"]
-    permissions:
-      contents: read
-      packages: read
 
     # Prevents parallel execution of the same workflow on the same branch.
     # If a new workflow run starts for the same branch/ref, the previous run is canceled.
@@ -88,7 +85,7 @@ jobs:
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+          NODE_AUTH_TOKEN: ${{ secrets.GIT_PAT  }}
 
       # Runs the linting process (e.g., ESLint or similar tools).
       - name: Lint Check
