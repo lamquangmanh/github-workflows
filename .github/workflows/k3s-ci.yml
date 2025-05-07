@@ -35,6 +35,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@lamquangmanh'
 
       # creates a .npmrc file in the home directory of the runner.
       - name: Create .npmrc securely
@@ -44,6 +46,8 @@ jobs:
 
       - name: Install yarn
         run: npm install -g yarn
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Retrieves the directory where Yarn stores cached dependencies.
       - name: Get yarn cache directory path
