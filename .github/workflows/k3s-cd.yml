@@ -27,9 +27,6 @@ jobs:
     # This value determines which environment (staging, production, etc.) the workflow is targeting.
     environment: ${{ inputs.environment }}
 
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
     steps:
       # Clones the repository into the GitHub Actions runner
       - name: Checkout

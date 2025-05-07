@@ -24,6 +24,8 @@ jobs:
       group: ${{ github.workflow }}-ci-process-${{ github.ref }}
       cancel-in-progress: true
 
+    environment: ${{ inputs.environment }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
