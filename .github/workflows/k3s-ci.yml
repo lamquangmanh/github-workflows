@@ -42,12 +42,14 @@ jobs:
       - name: Create .npmrc securely
         run: |
           echo "@lamquangmanh:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GIT_PAT }}" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GIT_PAT }}
 
       - name: Install yarn
         run: npm install -g yarn
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GIT_PAT }}
 
       # Retrieves the directory where Yarn stores cached dependencies.
       - name: Get yarn cache directory path
