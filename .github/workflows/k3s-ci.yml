@@ -36,6 +36,7 @@ jobs:
         with:
           node-version: 22
           registry-url: 'https://npm.pkg.github.com'
+          scope: '@lamquangmanh'
 
       - name: Install yarn
         run: npm install -g yarn
@@ -71,6 +72,8 @@ jobs:
       # Installs project dependencies without modifying yarn.lock.
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
 
       # Runs the linting process (e.g., ESLint or similar tools).
       - name: Lint Check
