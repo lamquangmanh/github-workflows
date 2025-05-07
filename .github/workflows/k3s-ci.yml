@@ -35,7 +35,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: 'https://npm.pkg.github.com'
 
       # creates a .npmrc file in the home directory of the runner.
       - name: Create .npmrc securely
