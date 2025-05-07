@@ -14,15 +14,15 @@ jobs:
     runs-on: ubuntu-latest
     # This is option 2: run on the runner of inputs
     # runs-on: ["${{ inputs.RUNNER }}"]
+    permissions:
+      contents: read
+      packages: read
 
     # Prevents parallel execution of the same workflow on the same branch.
     # If a new workflow run starts for the same branch/ref, the previous run is canceled.
     concurrency:
       group: ${{ github.workflow }}-ci-process-${{ github.ref }}
       cancel-in-progress: true
-
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout Repository
@@ -36,7 +36,14 @@ jobs:
         with:
           node-version: 22
           registry-url: 'https://npm.pkg.github.com'
-          scope: '@lamquangmanh'
+
+      # creates a .npmrc file in the home directory of the runner.
+      - name: Create .npmrc securely
+        run: |
+          echo "@lamquangmanh:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install yarn
         run: npm install -g yarn
