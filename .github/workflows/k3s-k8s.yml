@@ -8,6 +8,10 @@ on:
       repo_path:
         required: true
         type: string
+      docker_repository:
+        description: 'Docker repository name'
+        required: true
+        type: string
 
 jobs:
   build:
@@ -21,7 +25,6 @@ jobs:
     environment: ${{ inputs.environment }}
 
     env:
-      IMAGE_NAME: quangmanhlam/demo-fe
       PACKAGE_VERSION: ${{ github.ref_name }}
 
     steps:
@@ -46,7 +49,7 @@ jobs:
 
       - name: Update the image
         run: |
-          IMAGE_LATEST="${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          IMAGE_LATEST="${{ inputs.docker_repository }}:${{ github.sha }}"
 
           REPO_PATH="${{ inputs.repo_path }}${{ inputs.environment }}"
           cd ${REPO_PATH}
