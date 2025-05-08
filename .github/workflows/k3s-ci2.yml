@@ -57,6 +57,10 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GIT_PAT  }}
 
+      - name: Debug installed protobuf package
+        run: |
+          ls -R node_modules/@lamquangmanh/protobuf
+
       # Build the project: Compiles/transpiles the project.
       - name: Build
         run: yarn build
