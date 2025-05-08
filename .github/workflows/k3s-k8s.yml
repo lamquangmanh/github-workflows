@@ -32,7 +32,7 @@ jobs:
         with:
           repository: lamquangmanh/gitops-config
           ref: main
-          token: ${{ secrets.GIT_READ_ONLY_PAT }}
+          token: ${{ secrets.GIT_PAT }}
 
       - name: Config Git
         id: config-git
