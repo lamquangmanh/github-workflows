@@ -59,6 +59,4 @@ jobs:
 
       # Build the project: Compiles/transpiles the project.
       - name: Build
-        run: |
-          yarn install --frozen-lockfile
-          yarn run build
+        run: yarn build
