@@ -47,7 +47,7 @@ jobs:
         run: |
           IMAGE_LATEST="${{ inputs.repository_path }}:${{ github.sha }}"
 
-          REPO_PATH="${{ inputs.gitops_path }}${{ inputs.environment }}"
+          REPO_PATH="${{ inputs.gitops_path }}"
           cd ${REPO_PATH}
           kustomize edit set image deployment-image=${IMAGE_LATEST}
 
