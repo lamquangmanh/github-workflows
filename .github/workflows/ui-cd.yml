@@ -7,10 +7,14 @@ on:
         description: 'Deployment environment (dev, test, stag, prod)'
         required: true
         type: string
+      repository_path:
+        description: 'Docker repo path environment (dev, test, stag, prod)'
+        required: true
+        type: string
 
 jobs:
   cd-process:
-    name: Build and push docker image to GCP Artifact Registry (or Docker-hub)
+    name: Build and push docker image to Docker-hub
     runs-on: ubuntu-latest
     # This is option 2: run on the runner of inputs
     # runs-on: ["${{ inputs.RUNNER }}"]
@@ -30,46 +34,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Runs a shell script (ci_variables.sh) to set environment variables.
-      - name: Prepare Variables
-        run: |
-          bash ./scripts/ci_variables.sh
-
-      # Uses a Google Cloud service account (stored in secrets.GCP_SERVICE_ACCOUNT_KEY) to authenticate.
-      # This allows the workflow to interact with Google services, including Artifact Registry.
-      - name: Google Authentication
-        uses: 'google-github-actions/auth@v1'
+      # Login to docker hub using the credentials stored in GitHub secrets.
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
         with:
-          credentials_json: '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}'
-
-      # Installs Google Cloud SDK (gcloud CLI) in the GitHub Actions runner.
-      # Required for Docker authentication and pushing images.
-      - name: Google CLI
-        uses: google-github-actions/setup-gcloud@v1
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
 
       # Executes a custom Docker build script (build.sh).
       # This likely builds a Docker image with the application.
-      - name: Build Docker Image
-        run: ./scripts/build.sh
+      - name: Build Docker image
+        run: |
+          docker build -t temp .
 
-      # Configures Docker authentication with Google Artifact Registry.
-      # Enables the runner to push images to a private Google Cloud container repository.
-      - name: Configure Docker for Google Cloud
-        run: |-
-          gcloud auth configure-docker --quiet
-          gcloud auth configure-docker ${{ vars.GCP_REPO_REGION_NAME }} --quiet
+      - name: Tag and Push to Docker Hub
+        run: |
+          IMAGE_LATEST="${{ inputs.repository_path }}:${{ github.sha }}"
 
-      # Creates and pushes Docker images with two different tags:
-      # 1. ${{ github.sha }} → A unique image tag based on the commit SHA.
-      # 2. ${{ env.PACKAGE_VERSION }} → A versioned tag based on the application's package version.
-      # Tagging and Pushing:
-      # Tags the built image (temp) with both GCP_IMAGE_LATEST and GCP_IMAGE_CURRENT.
-      # Pushes both tagged images to Google Artifact Registry.
-      - name: Push Docker Image to Artifact Registry
-        run: |-
-          GCP_IMAGE_LATEST="${{ vars.GCP_REPO_REGION_NAME }}/${{ vars.GCP_PROJECT_ID }}/${{ vars.GCP_REPO_NAME }}/${{ inputs.environment }}:${{ github.sha }}"
-          GCP_IMAGE_CURRENT="${{ vars.GCP_REPO_REGION_NAME }}/${{ vars.GCP_PROJECT_ID }}/${{ vars.GCP_REPO_NAME }}/${{ inputs.environment }}:${{ env.PACKAGE_VERSION }}"
-          docker tag temp ${GCP_IMAGE_LATEST}
-          docker push ${GCP_IMAGE_LATEST}
-          docker tag temp ${GCP_IMAGE_CURRENT}
-          docker push ${GCP_IMAGE_CURRENT}
+          docker tag temp $IMAGE_LATEST
+          docker push $IMAGE_LATEST

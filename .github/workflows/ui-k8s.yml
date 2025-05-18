@@ -5,7 +5,10 @@ on:
       environment:
         required: true
         type: string
-      path:
+      repository_path:
+        required: true
+        type: string
+      gitops_path:
         required: true
         type: string
 
@@ -26,9 +29,9 @@ jobs:
       - name: Checkout Config Repo
         uses: actions/checkout@v4
         with:
-          repository: lamquangmanh/github-config
+          repository: lamquangmanh/gitops-config
           ref: main
-          token: ${{ secrets.READ_ONLY_PAT }}
+          token: ${{ secrets.GIT_PAT }}
 
       - name: Config Git
         id: config-git
@@ -42,10 +45,12 @@ jobs:
 
       - name: Update the image
         run: |
-          GCP_IMAGE_NAME="${{ vars.GCP_REPO_REGION_NAME }}/${{ vars.GCP_PROJECT_ID }}/${{ vars.GCP_REPO_NAME }}/${{ inputs.environment }}:${{ github.sha }}"
-          REPO_PATH="${{ inputs.path }}${{ inputs.environment }}"
+          IMAGE_LATEST="${{ inputs.repository_path }}:${{ github.sha }}"
+
+          REPO_PATH="${{ inputs.gitops_path }}${{ inputs.environment }}"
           cd ${REPO_PATH}
-          kustomize edit set image deployment-image=${GCP_IMAGE_NAME}
+          kustomize edit set image deployment-image=${IMAGE_LATEST}
+
           git add .
-          git commit -m "Update env: [${{ inputs.environment }}] repo: [${{ vars.GCP_REPO_NAME }}] image tag to: [${{ github.sha }}] date: [${{ steps.config-git.outputs.date-build }}]"
+          git commit -m "Update env: [${{ inputs.environment }}] image tag to: [${{ github.sha }}] date: [${{ steps.config-git.outputs.date-build }}]"
           git push

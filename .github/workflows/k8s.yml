@@ -1,62 +1,60 @@
-# name: Reusable CI/CD for ArgoCD & Kubernetes
+name: K8s Workflow
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      gitops_path:
+        required: true
+        type: string
+      repository_path:
+        description: 'Docker repository name'
+        required: true
+        type: string
 
-# on:
-#   workflow_call:
-#     inputs:
-#       app_name:
-#         description: 'ArgoCD Application Name'
-#         required: true
-#         type: string
-#       environment:
-#         description: 'Deployment environment (dev, staging, prod)'
-#         required: true
-#         type: string
-#       image_tag:
-#         description: 'Docker image tag to deploy'
-#         required: false
-#         type: string
-#     secrets:
-#       ARGOCD_SERVER:
-#         required: true
-#       ARGOCD_USERNAME:
-#         required: true
-#       ARGOCD_PASSWORD:
-#         required: true
-#       DOCKER_USERNAME:
-#         required: true
-#       DOCKER_PASSWORD:
-#         required: true
+jobs:
+  build:
+    name: K8s and ArgoCd sync
+    runs-on: ubuntu-latest
+    # use bellow option for self-hosted runner
+    # runs-on: ['${{ inputs.RUNNER }}']
 
-# jobs:
-#   cd-process:
-#     name: Deploy to Kubernetes via ArgoCD
-#     needs: ci
-#     runs-on: ubuntu-latest
+    # Sets the environment dynamically using a GitHub Action input.
+    # This value determines which environment (staging, production, etc.) the workflow is targeting.
+    environment: ${{ inputs.environment }}
 
-#     steps:
-#       - name: Checkout CI/CD Repository
-#         uses: actions/checkout@v4
+    env:
+      PACKAGE_VERSION: ${{ github.ref_name }}
 
-#       - name: Install ArgoCD CLI
-#         run: |
-#           curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-#           chmod +x argocd-linux-amd64
-#           sudo mv argocd-linux-amd64 /usr/local/bin/argocd
+    steps:
+      # Clones the repository
+      # That repository contains all kuztomize config, we need to clone it and ArgoCd will be execute it
+      - name: Checkout Config Repo
+        uses: actions/checkout@v4
+        with:
+          repository: lamquangmanh/gitops-config
+          ref: main
+          token: ${{ secrets.GIT_PAT }}
 
-#       - name: Login to ArgoCD
-#         run: |
-#           argocd login ${{ secrets.ARGOCD_SERVER }} --username ${{ secrets.ARGOCD_USERNAME }} --password ${{ secrets.ARGOCD_PASSWORD }} --insecure
+      - name: Config Git
+        id: config-git
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          echo "date-build=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_OUTPUT
 
-#       - name: Update Kubernetes Manifests (Kustomize)
-#         run: |
-#           cd kustomize/overlays/${{ inputs.environment }}
-#           kustomize edit set image my-org/${{ inputs.app_name }}=my-org/${{ inputs.app_name }}:${{ inputs.image_tag || 'latest' }}
-#           kustomize build . > manifests.yaml
-#           git add manifests.yaml
-#           git commit -m "Deploy ${{ inputs.app_name }} to ${{ inputs.environment }} with tag ${{ inputs.image_tag || 'latest' }}"
-#           git push origin main
+      - name: Setup kustomize
+        uses: imranismail/setup-kustomize@v2
 
-#       - name: Sync ArgoCD Application
-#         run: |
-#           argocd app sync ${{ inputs.app_name }} --async
-#           argocd app wait ${{ inputs.app_name }} --health
+      - name: Update the image
+        run: |
+          IMAGE_LATEST="${{ inputs.repository_path }}:${{ github.sha }}"
+
+          REPO_PATH="${{ inputs.gitops_path }}${{ inputs.environment }}"
+          cd ${REPO_PATH}
+          kustomize edit set image deployment-image=${IMAGE_LATEST}
+
+          git add .
+          git commit -m "Update env: [${{ inputs.environment }}] image tag to: [${{ github.sha }}] date: [${{ steps.config-git.outputs.date-build }}]"
+          git push
